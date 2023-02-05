@@ -1,0 +1,34 @@
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
+import 'package:prayertime/audio/player_widget.dart';
+import 'package:prayertime/audio/proprietes_widget.dart';
+import 'package:prayertime/audio/stream_widget.dart';
+import 'package:prayertime/audio/tab_content.dart';
+class StreamsTab extends StatefulWidget {
+  final AudioPlayer player;
+
+  const StreamsTab({super.key, required this.player});
+
+  @override
+  State<StreamsTab> createState() => _StreamsTabState();
+}
+
+class _StreamsTabState extends State<StreamsTab>
+    with AutomaticKeepAliveClientMixin<StreamsTab> {
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return TabContent(
+      children: [
+        PropertiesWidget(player: widget.player),
+        const Divider(color: Colors.black),
+        StreamWidget(player: widget.player),
+        const Divider(color: Colors.black),
+        PlayerWidget(player: widget.player),
+      ],
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+}

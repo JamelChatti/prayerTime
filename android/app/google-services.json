@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "919726170211",
+    "project_id": "prayer-time-2b73e",
+    "storage_bucket": "prayer-time-2b73e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:919726170211:android:99a7e8a491b7f86909d856",
+        "android_client_info": {
+          "package_name": "com.example.prayertime"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "919726170211-chrf28cp3boiqdsfr53hfeurnoa138p8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0m-symcM3nnLVSqmXtp0nXoZrB0CMaio"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "919726170211-chrf28cp3boiqdsfr53hfeurnoa138p8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
