@@ -81,7 +81,7 @@ dependencies:
   device_info_plus: ^8.0.0
   eva_icons_flutter: ^3.1.0
   photo_view: ^0.14.0
-
+  get_rx_persist: ^1.1.0+1
 
 
 
