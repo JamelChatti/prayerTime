@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:prayertime/adhan.dart';
+import 'package:prayertime/class/date_hijri_arabic.dart';
+
 import 'package:prayertime/class/hive_masjid.dart';
 import 'package:prayertime/common/masjid.dart';
 import 'package:prayertime/display_on_tv/display_on_tv.dart';
@@ -33,9 +35,11 @@ class _MyDrawerState extends State<MyDrawer> {
       if (hiveMainMasjid != null) {
         MasjidService.getMasjidWithId(hiveMainMasjid.id).then((value) {
           mainMasjid = value;
-          setState(() {
+          if(mounted) {
+            setState(() {
             isLoading = false;
           });
+          }
         });
       } else {
         setState(() {
@@ -67,7 +71,7 @@ class _MyDrawerState extends State<MyDrawer> {
         )),
         //color: Colors.blueGrey[700],
         child: Column(
-          children: [
+          children: const [
             Text('')
             // Icon(Icons.mosque,size: 100,color: Colors.indigo[700],),
           ],
@@ -95,7 +99,7 @@ class _MyDrawerState extends State<MyDrawer> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NewRegister()),
+                  MaterialPageRoute(builder: (context) => const NewRegister()),
                 );
               },
             ),
@@ -211,10 +215,24 @@ class _MyDrawerState extends State<MyDrawer> {
             ),
             ListTile(
               title: const Text(
-                '',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
+                'Adhan',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w300,
+                  color: Colors.indigo,
+                ),
               ),
-              onTap: () {},
+              leading: const Icon(
+                Icons.login,
+                color: Colors.indigo,
+                size: 40,
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  DateHijriArabic()),
+                );
+              },
             ),
             ListTile(
               title: const Text(

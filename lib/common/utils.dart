@@ -2,11 +2,13 @@
 
 import 'dart:math';
 
+import 'package:adhan/adhan.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:prayertime/common/masjid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Utils {
+class UtilsMasjid {
   static SharedPreferences? localStorage;
 
   static Future init() async {
@@ -39,8 +41,15 @@ class Utils {
         textColor: Colors.white,
         fontSize: 16.0);
   }
-
-
+  Duration difference(DateTime start, DateTime end) {
+    return end.difference(start);
+  }
+  DateTime? convertTime(String t) {
+    TimeOfDay time = TimeOfDay(
+        hour: int.parse(t.split(":")[0]), minute: int.parse(t.split(":")[1]));
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, time.hour, time.minute);
+  }
 
   List<String> tokens = [];
 

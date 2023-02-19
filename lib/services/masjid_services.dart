@@ -1,13 +1,20 @@
+import 'package:adhan/adhan.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hive/hive.dart';
+import 'package:prayertime/class/hive_masjid.dart';
 import 'package:prayertime/common/masjid.dart';
+import 'package:prayertime/common/prayer_times.dart';
+import 'package:prayertime/common/utils.dart';
 
 class MasjidService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final _firestore = FirebaseFirestore.instance;
   List<MyMasjid> masjids = [];
+  var mainMasjidsBox = Hive.box<HiveMasjid>('mainMasjid');
 
+  MyMasjid? mainMasjid;
   static Future<MyMasjid?> getMasjidWithId(String id) async {
     MyMasjid? masjid;
 
@@ -60,36 +67,38 @@ class MasjidService {
 
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    // await getGenderIcons(context);
     QuerySnapshot querySnapshot;
     double lat = 0.144927536231884;
     double lon = 0.181818181818182;
     double distance = 1000 * 0.000621371;
+
+    // var tunisLat = 35.1675800;
+    // var tunisLon = 8.8365100;
+    // double lowerLat = tunisLat - (lat * distance);
+    // double lowerLon = tunisLon - (lon * distance);
+    // double greaterLat = tunisLat + (lat * distance);
+    // double greaterLon = tunisLon + (lon * distance);
+
     double lowerLat = position.latitude - (lat * distance);
     double lowerLon = position.longitude - (lon * distance);
     double greaterLat = position.latitude + (lat * distance);
     double greaterLon = position.longitude + (lon * distance);
+
     GeoPoint lesserGeopoint = GeoPoint(lowerLat, lowerLon);
     GeoPoint greaterGeopoint = GeoPoint(greaterLat, greaterLon);
     await _firestore
         .collection('masjids')
         .where("positionMasjid", isGreaterThan: lesserGeopoint)
         .where("positionMasjid", isLessThan: greaterGeopoint)
+        .where("type", isEqualTo: "MASJID")
         .limit(100)
         .get()
-
-        // await _firestore.collection('masjids')
-        //     .where("masjidLatitude",isLessThanOrEqualTo: latitude )
-        // .where("masjidLongitude", isLessThan: longitude)
-
         .then((QuerySnapshot querySnapshot) {
       for (var result in querySnapshot.docs) {
         masjids.add(MyMasjid.fromDocument(result));
       }
-
       return masjids;
     });
-
     return masjids;
   }
 
@@ -137,5 +146,30 @@ class MasjidService {
         .doc(masjid.id)
         .update(masjid.toMap());
     return null;
+  }
+
+  static Future<DateTime?> getIqama(Prayer salat, MyMasjid masjid) async {
+    DateTime? iqama;
+    await FirebaseFirestore.instance
+        .collection("masjids")
+        .doc(masjid.id)
+        .get()
+        .then((ds) {
+      if (ds.exists) {
+        var map = ds[salat.name];
+        if (map["fixed"]) {
+          iqama = UtilsMasjid().convertTime(map["time"])!;
+        } else {
+          var now = DateTime.now();
+          // DateTime adhan = DateTime(now.year, now.month,
+          //     now.day, now.hour, 8);
+          DateTime adhan =
+              PrayerTimesManager().prayerTimes.timeForPrayer(salat)!;
+          iqama = DateTime(adhan.year, adhan.month, adhan.day, adhan.hour,
+              adhan.minute + int.parse(map["time"]));
+        }
+      }
+    });
+    return iqama;
   }
 }

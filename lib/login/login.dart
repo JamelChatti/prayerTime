@@ -8,9 +8,9 @@ import 'package:prayertime/common/user_service.dart';
 import 'package:prayertime/home_page.dart';
 import 'package:prayertime/login/new_register.dart';
 import 'package:prayertime/login/password_forgotten.dart';
-import 'package:prayertime/masjid_update.dart';
 import 'package:prayertime/services/auth_service.dart';
 import 'package:prayertime/services/masjid_services.dart';
+import 'package:prayertime/setting_masjid/setting_masjid.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -54,10 +54,6 @@ class _LoginPageState extends State<LoginPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Se connecter'),
-          // leading: IconButton(
-          //   icon: const Icon(Icons.home),
-          //   onPressed: Utils.goToWithReplacement(context, const HomePage2()),
-          // ),
         ),
         body: Container(
             padding: const EdgeInsets.all(16),
@@ -136,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute<void>(
-                                    builder: (context) => MasjidUpdate(
+                                    builder: (context) => SettingMasjid(
                                         user: currentUser!, masjid: masjid!)));
                           } else {
                             Navigator.pushReplacement(
@@ -192,7 +188,8 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   )
                 ],
-              )),
+              )
+              ),
             )),
       ),
     );

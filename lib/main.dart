@@ -1,31 +1,39 @@
-import 'package:baseflow_plugin_template/baseflow_plugin_template.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:prayertime/common/utils.dart';
+import 'package:prayertime/display_on_tv/timer_controller.dart';
 import 'package:prayertime/landing_page.dart';
 import 'package:prayertime/location.dart';
 import 'package:prayertime/login/firebase_options.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 
+
+
 void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  imageCache.clear();
    await Hive.initFlutter();
 
+  tz.initializeTimeZones();
    WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
- // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(
     name: "PRAYER TIME",
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(BaseflowPluginExample(
-    pluginName: 'test plugin',
-    githubURL: 'https://github.com/baseflow/baseflow_plugin_template',
-    pubDevURL: 'https://pub.dev/publishers/baseflow.com/packages',
-    pages: [Location.createPage()],
-  ));
-  tz.initializeTimeZones();
-  await Utils.init();
+  // runApp(BaseflowPluginExample(
+  //   pluginName: 'test plugin',
+  //   githubURL: 'https://github.com/baseflow/baseflow_plugin_template',
+  //   pubDevURL: 'https://pub.dev/publishers/baseflow.com/packages',
+  //   pages: [Location.createPage()],
+  // ));
+  //tz.initializeTimeZones();
+  await UtilsMasjid.init();
 
   final customTheme = ThemeData(
     primarySwatch: Colors.blue,
@@ -50,7 +58,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    Get.put(LocationController());
+    //Get.put(TimerController());
+
+
+    return GetMaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         tabBarTheme: const TabBarTheme(

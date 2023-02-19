@@ -69,17 +69,17 @@ class _PasswordForgottenState extends State<PasswordForgotten> {
                       const SizedBox(
                         height: 20,
                       ),
-                      ElevatedButton(
-                        child: const Text(
-                          'Envoyer',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () async {
-                          sendpasswordresetemail(_emailController.text.trimRight());
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => const UpdatePrayerTime()));
-                        },
-                      ),
+                      // ElevatedButton(
+                      //   child: const Text(
+                      //     'Envoyer',
+                      //     style: TextStyle(color: Colors.white),
+                      //   ),
+                      //   onPressed: () async {
+                      //     sendpasswordresetemail(_emailController.text.trimRight());
+                      //     Navigator.push(context,
+                      //         MaterialPageRoute(builder: (context) => const UpdatePrayerTime()));
+                      //   },
+                      // ),
                     ],
                   )),
             )),
@@ -89,12 +89,12 @@ class _PasswordForgottenState extends State<PasswordForgotten> {
 
   void sendpasswordresetemail(String email) async {
     await _auth.sendPasswordResetEmail(email: email).then((value) {
-      Utils().toastMessage(
+      UtilsMasjid().toastMessage(
           "Email réinitialisation du mot de passe envoyer", Colors.red);
     }).catchError((onError) {
       onError.toString();
 
-      Utils().toastMessage("Error In Email Reset", Colors.red);
+      UtilsMasjid().toastMessage("Error In Email Reset", Colors.red);
     });
   }
 }

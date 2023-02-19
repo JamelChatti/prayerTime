@@ -1,12 +1,13 @@
 import 'package:adhan/adhan.dart';
 import 'package:intl/intl.dart';
-import 'package:prayertime/common/utils.dart';
 import 'package:prayertime/common/globals.dart';
 
 class PrayerTimesManager {
  // final myCoordinates = Coordinates(35.741884, 10.575);
-  final params = CalculationMethod.karachi.getParameters();
-  late final prayerTimes;
+  // final params = CalculationMethod.muslim_world_league.getParameters();
+// 38 39 34 02 26
+  final params = CalculationMethod.dubai.getParameters();
+  late final PrayerTimes prayerTimes;
   PrayerTimesManager() {
     final Coordinates myCoordinates = Coordinates(latitude, longitude);
     prayerTimes = PrayerTimes.today(myCoordinates, params);

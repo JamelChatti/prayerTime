@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:prayertime/adhan.dart';
 import 'package:prayertime/audio/audio_player.dart';
 import 'package:prayertime/class/hive_masjid.dart';
 import 'package:prayertime/class/near_masjid_response.dart';
@@ -17,8 +18,10 @@ import 'package:prayertime/common/globals.dart';
 import 'package:prayertime/common/masjid.dart';
 import 'package:prayertime/common/prayer_times.dart';
 import 'package:prayertime/current_masgid_iquama.dart';
+import 'package:prayertime/favorite_masjid.dart';
 import 'package:prayertime/geo_location.dart';
 import 'package:prayertime/login/login.dart';
+import 'package:prayertime/map_screen.dart';
 import 'package:prayertime/my_drawer.dart';
 import 'package:prayertime/quibla/loading.dart';
 import 'package:prayertime/quibla/qibla_direction.dart';
@@ -54,7 +57,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    //saveToken();
+    saveToken();
+    imageCache.clear();
     initData();
   }
 
@@ -65,8 +69,8 @@ class _HomePageState extends State<HomePage> {
     getMainMasjid(hiveMainMasjid);
   }
 
-  void getMainMasjid(hiveMainMasjid) {
-    if (mainMasjid == null || hiveMainMasjid.id != mainMasjid!.id) {
+  void getMainMasjid(HiveMasjid? hiveMainMasjid) {
+    if (mainMasjid == null || hiveMainMasjid == null || hiveMainMasjid.id != mainMasjid!.id) {
       mainMasjid = null;
       setState(() {
         isLoading = true;
@@ -99,7 +103,7 @@ class _HomePageState extends State<HomePage> {
       initialIndex: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Accueil'),
+          title: const Text('Iqama'),
           backgroundColor: Colors.indigo[900],
         ),
         drawer: MyDrawer(),
@@ -113,12 +117,14 @@ class _HomePageState extends State<HomePage> {
                 child: TabBarView(
                   children: [
                     //for (final icon in _kPages.values) Icon(icon, size: 64),
-                    const GeoLocation(),
                     NearMasjidResponse(parentSetState: updateDropdown),
+                    const FavoriteMasjid(),
                     CurrentMasjidIquama(
                         mainMasjid: mainMasjid, isLoading: isLoading),
                     QuiblaDirection(),
-                    const AudioAdhenPlayer(),
+                    const Adhan(
+
+                    ),
                   ],
                 ),
               ),

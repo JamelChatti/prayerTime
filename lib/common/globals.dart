@@ -7,3 +7,4 @@ MyUser? currentUser;
 MyMasjid? favMasjid;
 double latitude = mekkaLatitude;
 double longitude = mekkaLongitude;
+

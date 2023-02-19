@@ -9,6 +9,8 @@ import 'package:prayertime/common/utils.dart';
 import 'package:prayertime/home_page.dart';
 import 'package:prayertime/services/auth_service.dart';
 import 'package:prayertime/services/masjid_services.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:hive/hive.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -21,7 +23,7 @@ class _LandingPageState extends State<LandingPage> {
   LoginStatus _loginStatus = LoginStatus.loggedOff;
   final AuthService authService = AuthService();
   bool _isInitialized = false;
-
+  final databaseReference = FirebaseDatabase.instance.reference();
   @override
   void initState() {
     super.initState();
@@ -29,25 +31,34 @@ class _LandingPageState extends State<LandingPage> {
     _initialize();
   }
 
+  // void updateHiveFromFirebase() {
+  //   databaseReference.child("your_database_path").once().then((DataSnapshot snapshot) {
+  //     Map data = snapshot.value;
+  //
+  //     // Enregistrer les données mises à jour dans Hive
+  //     Hive.box('your_box_name').put('your_key', data);
+  //   });
+  // }
+
   void _initialize() async {
     _loginStatus = await authService.checkIfLoggedIn();
-    String favMasjidId = Utils.localStorage!.getString("favMasjidId") ?? "";
+    String favMasjidId = UtilsMasjid.localStorage!.getString("favMasjidId") ?? "";
     if (favMasjidId.isNotEmpty) {
       favMasjid = await MasjidService.getMasjidWithId(favMasjidId);
     }
-    double? localLatitude = Utils.localStorage!.getDouble("latitude");
+    double? localLatitude = UtilsMasjid.localStorage!.getDouble("latitude");
     if (localLatitude != null) {
       latitude = localLatitude;
     }
-    double? localLongitude = Utils.localStorage!.getDouble("longitude");
+    double? localLongitude = UtilsMasjid.localStorage!.getDouble("longitude");
     if (localLongitude != null) {
       longitude = localLongitude;
     }
 
     Hive.registerAdapter(HiveMasjidAdapter());
 
-    //Hive.deleteBoxFromDisk("myMasjids");
-    //Hive.deleteBoxFromDisk("mainMasjid");
+   // Hive.deleteBoxFromDisk("myMasjids");
+   // Hive.deleteBoxFromDisk("mainMasjid");
     if (!Hive.isBoxOpen('myMasjids')) {
       await Hive.openBox<HiveMasjid>('myMasjids');
     }

@@ -24,7 +24,7 @@ class AuthService {
   }
 
   Future<void> _completeLogin(User user) async {
-    Utils.localStorage!.setString(StorageConst.email, user.email!);
+    UtilsMasjid.localStorage!.setString(StorageConst.email, user.email!);
     //bool regisComplete = await UserService.registrationComplete();
     //Utils.localStorage!.setBool(StorageConst.regisComplete, regisComplete);
 
@@ -34,7 +34,7 @@ class AuthService {
   }
 
   Future<void> _completeLogout() async {
-    Utils.localStorage!.clear();
+    UtilsMasjid.localStorage!.clear();
     userService.uninitializeCurrentUser();
   }
 

@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:prayertime/common/globals.dart';
 import 'package:prayertime/common/prayer_times.dart';
 import 'package:prayertime/common/utils.dart';
-import 'package:prayertime/update_prayer_time.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Adhan extends StatefulWidget {
@@ -25,12 +24,6 @@ class _AdhanState extends State<Adhan> {
       Coordinates(35.741884, 10.575); // Replace with your own location lat, lng.
 
   final params = CalculationMethod.karachi.getParameters();
-  String? _fajr;
-  String? _sunrise;
-  String? _dhohr;
-  String? _asr;
-  String? _maghreb;
-  String? _icha;
   Position? _position;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late Future<double> _latitude;
@@ -97,8 +90,8 @@ class _AdhanState extends State<Adhan> {
     Position position = await _determinePosition();
     //print(position.latitude) ;
     //print(position.latitude) ;
-    Utils.localStorage!.setDouble("latitude", position.latitude);
-    Utils.localStorage!.setDouble("longitude", position.longitude);
+    UtilsMasjid.localStorage!.setDouble("latitude", position.latitude);
+    UtilsMasjid.localStorage!.setDouble("longitude", position.longitude);
     latitude = position.latitude;
     longitude = position.longitude;
     _position = position;
@@ -222,15 +215,6 @@ class _AdhanState extends State<Adhan> {
                   Text(prayerTimesManager.isha),
                 ],
               ),
-              // ElevatedButton(
-              //     onPressed: () {
-              //       Navigator.push(
-              //         context,
-              //         MaterialPageRoute<void>(
-              //             builder: (context) => const UpdatePrayerTime()),
-              //       );
-              //     },
-              //     child: const Text('Actualiser votre localisation'))
             ],
           ),
         ),

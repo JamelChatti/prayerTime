@@ -14,12 +14,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:prayertime/adhan.dart';
 import 'package:prayertime/class/map_location.dart';
-import 'package:prayertime/common/utils.dart';
 import 'package:prayertime/common/masjid.dart';
 import 'package:prayertime/common/prayer_times.dart';
-import 'package:prayertime/common/user_service.dart';
+import 'package:prayertime/common/utils.dart';
 import 'package:prayertime/home_page.dart';
-import 'package:prayertime/services/masjid_services.dart';
 import 'package:prayertime/user.dart';
 import 'package:progress_state_button/progress_button.dart';
 
@@ -68,22 +66,22 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
   LatLng? initTarget;
 
   LatLng? position;
-  bool _visibile = false;
+
   final iqFormat = DateFormat.Hm();
   String countryValue = '';
   String stateValue = '';
   String cityValue = '';
   List<bool> afterTimeVisibility = [false, false, false, false, false];
-  Map<String, Image> _loadedImages = Map();
-  Map<String, Image> _loadedDoc = Map();
-  List<String> _toDeleteDocs = [];
+  final Map<String, Image> _loadedImages = Map();
+  final Map<String, Image> _loadedDoc = Map();
+  final List<String> _toDeleteDocs = [];
 
-  List<String> _toDeleteImages = [];
+  final List<String> _toDeleteImages = [];
 
   bool saved = false;
   GoogleMapExampleAppPage googleMapExampleAppPage = GoogleMapExampleAppPage(
       initialPosition:
-          CameraPosition(target: LatLng(37.4219999, -122.0840575)));
+          const CameraPosition(target: LatLng(37.4219999, -122.0840575)));
 
   //TODO validate
   ButtonState stateOnlyText = ButtonState.idle;
@@ -107,7 +105,7 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
   TextEditingController afterAsrTimeController = TextEditingController();
   TextEditingController afterMaghribTimeController = TextEditingController();
   TextEditingController afterIshaTimeController = TextEditingController();
-  Marker marker = Marker(markerId: const MarkerId("1"));
+  Marker marker = const Marker(markerId: MarkerId("1"));
   TextEditingController fajrTimeController = TextEditingController();
   PrayerTimesManager prayerTimesManager = PrayerTimesManager();
   List<Placemark>? placemarks;
@@ -122,13 +120,11 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
   int imageUploaded = 0;
   int docUploaded = 0;
 
-  final UserService _userService = UserService();
-  final MasjidService _masjidService = MasjidService();
   final fireStoreInstance = FirebaseFirestore.instance;
   bool userFieldExist = false;
-  List<XFile> _selectedImages = [];
-  List<XFile> _selectedDoc = [];
-  MasjidService masjidService = MasjidService();
+  final List<XFile> _selectedImages = [];
+  final List<XFile> _selectedDoc = [];
+
 
   void _getPlace(LatLng position) async {
     placemarks =
@@ -147,14 +143,14 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
         LatLng(widget.masjid.positionMasjid.latitude, widget.masjid.positionMasjid.longitude);
     loadImages();
     loadDocs();
-    fajrTimeController.text = prayerTimesManager.fajr.toString();
-    dhuhrTimeController.text = prayerTimesManager.dhuhr.toString();
-    asrTimeController.text = prayerTimesManager.asr.toString();
-    maghribTimeController.text = prayerTimesManager.maghrib.toString();
-    ishaTimeController.text = prayerTimesManager.isha.toString();
+    fajrTimeController.text = widget.masjid.fajr.time;
+    dhuhrTimeController.text = widget.masjid.dhuhr.time;
+    asrTimeController.text = widget.masjid.asr.time;
+    maghribTimeController.text = widget.masjid.maghrib.time;
+    ishaTimeController.text = widget.masjid.isha.time;
     isCheckedWomanMousalla = widget.masjid.womenMousalla;
     isCheckedJoumoua = widget.masjid.existJoumoua;
-    isCheckedTahajod = widget.masjid.existtAhajod;
+    isCheckedTahajod = widget.masjid.existTahajod;
     isCheckedAid = widget.masjid.existAid;
     isCheckedAblution = widget.masjid.ablution;
     isCheckedCarPark = widget.masjid.carPark;
@@ -207,7 +203,8 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
             key: _formKeys[0],
             child: SizedBox(
               height: 450,
-              child: ListView(
+              child: widget.masjid.type== 'MASJID'?
+              ListView(
                 children: [
                   const Text(
                     'Identité',
@@ -414,6 +411,109 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
                     height: 10,
                   ),
                 ],
+              )
+              :ListView(
+                children: [
+                  const Text(
+                    'Identité',
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.blueGrey,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  TextFormField(
+                    controller: responsibleController,
+                    keyboardType: TextInputType.text,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      filled: true,
+                      icon: Icon(Icons.person),
+                      labelText: 'Nom du responsable ',
+                      hintText: 'Nom du responsable',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Veuillez saisir le nom du responsable';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    controller: masjidNameController,
+                    keyboardType: TextInputType.text,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      filled: true,
+                      icon: Icon(Icons.home),
+                      labelText: 'Nom du masjid ',
+                      hintText: 'Nom du masjid',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Veuillez saisir le nom du masjid';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    controller: addressController,
+                    keyboardType: TextInputType.text,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      filled: true,
+                      icon: Icon(Icons.location_city),
+                      labelText: 'Adresse ',
+                      hintText: 'Adresse ',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Veuillez saisir l\'adresse du masjid';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        SelectState(
+                          // style: TextStyle(color: Colors.red),
+                          onCountryChanged: (value) {
+                            setState(() {
+                              countryValue = value;
+                            });
+                          },
+                          onStateChanged: (value) {
+                            setState(() {
+                              stateValue = value;
+                            });
+                          },
+                          onCityChanged: (value) {
+                            setState(() {
+                              cityValue = value;
+                            });
+                          },
+                        ),
+
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                ],
               ),
             ),
           ),
@@ -425,7 +525,8 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
             title: const Text(''),
             content: Form(
               key: _formKeys[1],
-              child: Column(
+              child: widget.masjid.type== 'MASJID'?
+              Column(
                 children: [
                   const Center(
                       child: Text(
@@ -480,6 +581,62 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
                           '${placemarks![0].locality}  ${placemarks![0].country}')
                       : Container()
                 ],
+              )
+              :Column(
+                children: [
+                  const Center(
+                      child: Text(
+                        'LOCALISATION DU LIEU',
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.blueGrey,
+                            fontWeight: FontWeight.bold),
+                      )),
+                  SizedBox(
+                      height: 400,
+                      width: 350,
+                      child: GoogleMap(
+                        myLocationButtonEnabled: true,
+                        initialCameraPosition: CameraPosition(
+                          target: initTarget!,
+                          zoom: 20.0,
+                        ),
+                        //markers: googleMapExampleAppPage.markers,
+                        polygons: googleMapExampleAppPage.polygons,
+                        polylines: googleMapExampleAppPage.polylines,
+                        circles: googleMapExampleAppPage.circles,
+                        onMapCreated: (GoogleMapController controller) {
+                          _controller = controller;
+                        },
+                        markers: {marker},
+
+                        onTap: (value) {
+                          print(value);
+                          setState(() {
+                            marker = Marker(
+                                draggable: true,
+                                markerId: const MarkerId("1"),
+                                position: value,
+                                icon: BitmapDescriptor.defaultMarker,
+                                onTap: () {
+                                  _onMarkerTapped("1");
+                                });
+                            _center = value;
+                          });
+                          print(_center);
+                          _getPlace(_center);
+                          // print(placemarks![0].locality);
+                          // print(placemarks![0].country);
+                        },
+                      )),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  placemarks != null
+                      ? Text(
+                      '${placemarks![0].locality}  ${placemarks![0].country}')
+                      : Container()
+                ],
               ),
             )),
         Step(
@@ -489,7 +646,8 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
             title: const Text(''),
             content: Form(
               key: _formKeys[2],
-              child: Column(
+              child: widget.masjid.type== 'MASJID'?
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -605,39 +763,43 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
                                       )
                                     : Expanded(
                                         flex: 3,
-                                        child: TextFormField(
-                                          enableInteractiveSelection: false,
-                                          autofocus: true,
-                                          decoration: const InputDecoration(
-                                            contentPadding: EdgeInsets.fromLTRB(
-                                                2.0, 10.0, 20.0, 8.0),
-                                            hintText: ' ',
-                                            filled: true,
-                                            fillColor:
-                                                Color.fromARGB(30, 6, 3, -10),
-                                            focusColor: Colors.grey,
-                                            border: InputBorder.none,
+                                        child: Visibility(
+                                          visible: afterTimeVisibility[0],
+
+                                          child: TextFormField(
+                                            enableInteractiveSelection: false,
+                                            autofocus: true,
+                                            decoration: const InputDecoration(
+                                              contentPadding: EdgeInsets.fromLTRB(
+                                                  2.0, 10.0, 20.0, 8.0),
+                                              hintText: ' ',
+                                              filled: true,
+                                              fillColor:
+                                                  Color.fromARGB(30, 6, 3, -10),
+                                              focusColor: Colors.grey,
+                                              border: InputBorder.none,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            controller: afterFajrTimeController,
+                                            onChanged: (value) {},
+                                            validator: (value) {
+                                              if (value!.isEmpty &&
+                                                  afterTimeVisibility[0]) {
+                                                return 'Veuillez saisir une valeur';
+                                              }
+                                              return null;
+                                            },
+                                            inputFormatters: <TextInputFormatter>[
+                                              //WhitelistingTextInputFormatter.digitsOnly
+                                              FilteringTextInputFormatter.allow(
+                                                  expression)
+                                            ],
+                                            keyboardType: const TextInputType
+                                                .numberWithOptions(
+                                              signed: true,
+                                            ),
+                                            // Only numbers can be entered
                                           ),
-                                          textAlign: TextAlign.center,
-                                          controller: afterFajrTimeController,
-                                          onChanged: (value) {},
-                                          validator: (value) {
-                                            if (value!.isEmpty &&
-                                                afterTimeVisibility[0]) {
-                                              return 'Veuillez saisir une valeur';
-                                            }
-                                            return null;
-                                          },
-                                          inputFormatters: <TextInputFormatter>[
-                                            //WhitelistingTextInputFormatter.digitsOnly
-                                            FilteringTextInputFormatter.allow(
-                                                expression)
-                                          ],
-                                          keyboardType: const TextInputType
-                                              .numberWithOptions(
-                                            signed: true,
-                                          ),
-                                          // Only numbers can be entered
                                         ),
                                       ),
                               ]),
@@ -1303,6 +1465,655 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
                             ])),
                       ))
                 ],
+              )
+              :Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Center(
+                      child: Text(
+                        'SAISR HEURE IQAMA',
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.blueGrey,
+                            fontWeight: FontWeight.bold),
+                      )),
+                  Directionality(
+                      textDirection: ui.TextDirection.rtl,
+                      child: SizedBox(
+                        height: 450,
+                        child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: ListView(children: [
+                              Text(f.format(DateTime.now()),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20)),
+                              Row(
+                                children: [
+                                  const Text(' مسجد',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18)),
+                                  Text(': ${masjidNameController.text}'),
+                                ],
+                              ),
+                              Row(children: [
+                                const Expanded(flex: 2, child: Text(' الفجر')),
+                                //  const Expanded(child: Text('الساعة ')),
+                                Expanded(
+                                  flex: 3,
+                                  child: TextButton(
+                                    style: TextButton.styleFrom(
+                                      primary: Colors.grey,
+                                    ),
+                                    child: afterTimeVisibility[0]
+                                        ? const Text(
+                                      ' بعدالاذان بـ',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18),
+                                    )
+                                        : const Text(
+                                      ' الساعة ',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18),
+                                    ),
+                                    onPressed: () async {
+                                      setState(() {
+                                        afterTimeVisibility[0] =
+                                        !afterTimeVisibility[0];
+                                      });
+                                    },
+                                  ),
+                                ),
+                                !afterTimeVisibility[0]
+                                    ? Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                      padding: const EdgeInsets.all(15),
+                                      height: 50,
+                                      child: Center(
+                                          child: TextField(
+                                            controller: fajrTimeController,
+                                            //editing controller of this TextField
+                                            decoration: InputDecoration(
+                                              hintText:
+                                              prayerTimesManager.fajr,
+                                              // icon: Icon(Icons.timer), //icon of text field
+                                              //labelText: "Enter Time" ,
+                                            ),
+                                            readOnly: true,
+                                            //set it true, so that user will not able to edit text
+                                            onTap: () async {
+                                              TimeOfDay? pickedTime =
+                                              await showTimePicker(
+                                                initialTime: TimeOfDay.now(),
+                                                context: context,
+                                              );
+
+                                              if (pickedTime != null) {
+                                                // print(pickedTime.format(context));   //output 10:51 PM
+                                                DateTime parsedTime =
+                                                DateFormat.Hm().parse(
+                                                    pickedTime
+                                                        .format(context)
+                                                        .toString());
+                                                //converting to DateTime so that we can further format on different pattern.
+                                                print(
+                                                    parsedTime); //output 1970-01-01 22:53:00.000
+                                                String formattedTime =
+                                                DateFormat('HH:mm')
+                                                    .format(parsedTime);
+                                                print(
+                                                    formattedTime); //output 14:59:00
+                                                //DateFormat() is from intl package, you can format the time on any pattern you need.
+
+                                                setState(() {
+                                                  fajrTimeController.text =
+                                                      formattedTime; //set the value of text field.
+                                                });
+                                              } else {
+                                                print("Time is not selected");
+                                              }
+                                            },
+                                          ))),
+                                )
+                                    : Expanded(
+                                  flex: 3,
+                                  child: Visibility(
+                                    visible: afterTimeVisibility[0],
+
+                                    child: TextFormField(
+                                      enableInteractiveSelection: false,
+                                      autofocus: true,
+                                      decoration: const InputDecoration(
+                                        contentPadding: EdgeInsets.fromLTRB(
+                                            2.0, 10.0, 20.0, 8.0),
+                                        hintText: ' ',
+                                        filled: true,
+                                        fillColor:
+                                        Color.fromARGB(30, 6, 3, -10),
+                                        focusColor: Colors.grey,
+                                        border: InputBorder.none,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      controller: afterFajrTimeController,
+                                      onChanged: (value) {},
+                                      validator: (value) {
+                                        if (value!.isEmpty &&
+                                            afterTimeVisibility[0]) {
+                                          return 'Veuillez saisir une valeur';
+                                        }
+                                        return null;
+                                      },
+                                      inputFormatters: <TextInputFormatter>[
+                                        //WhitelistingTextInputFormatter.digitsOnly
+                                        FilteringTextInputFormatter.allow(
+                                            expression)
+                                      ],
+                                      keyboardType: const TextInputType
+                                          .numberWithOptions(
+                                        signed: true,
+                                      ),
+                                      // Only numbers can be entered
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                              Row(children: [
+                                const Expanded(flex: 2, child: Text(' الظهر')),
+                                //  const Expanded(child: Text('الساعة ')),
+                                Expanded(
+                                  flex: 3,
+                                  child: TextButton(
+                                    style: TextButton.styleFrom(
+                                      primary: Colors.grey,
+                                    ),
+                                    child: afterTimeVisibility[1]
+                                        ? const Text(
+                                      ' بعدالاذان بـ',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18),
+                                    )
+                                        : const Text(
+                                      ' الساعة ',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18),
+                                    ),
+                                    onPressed: () async {
+                                      setState(() {
+                                        afterTimeVisibility[1] =
+                                        !afterTimeVisibility[1];
+                                      });
+                                    },
+                                  ),
+                                ),
+                                !afterTimeVisibility[1]
+                                    ? Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                      padding: const EdgeInsets.all(15),
+                                      height: 50,
+                                      child: Center(
+                                          child: TextField(
+                                            controller: dhuhrTimeController,
+                                            //editing controller of this TextField
+                                            decoration: InputDecoration(
+                                              hintText:
+                                              prayerTimesManager.dhuhr,
+                                            ),
+                                            readOnly: true,
+                                            //set it true, so that user will not able to edit text
+                                            onTap: () async {
+                                              TimeOfDay? pickedTime =
+                                              await showTimePicker(
+                                                initialTime: TimeOfDay.now(),
+                                                context: context,
+                                              );
+
+                                              if (pickedTime != null) {
+                                                // print(pickedTime.format(context));   //output 10:51 PM
+                                                DateTime parsedTime =
+                                                DateFormat.Hm().parse(
+                                                    pickedTime
+                                                        .format(context)
+                                                        .toString());
+                                                //converting to DateTime so that we can further format on different pattern.
+                                                print(
+                                                    parsedTime); //output 1970-01-01 22:53:00.000
+                                                String formattedTime =
+                                                DateFormat('HH:mm')
+                                                    .format(parsedTime);
+                                                print(
+                                                    formattedTime); //output 14:59:00
+                                                //DateFormat() is from intl package, you can format the time on any pattern you need.
+
+                                                setState(() {
+                                                  dhuhrTimeController.text =
+                                                      formattedTime; //set the value of text field.
+                                                });
+                                              } else {
+                                                print("Time is not selected");
+                                              }
+                                            },
+                                          ))),
+                                )
+                                    : Expanded(
+                                    flex: 3,
+                                    child: Visibility(
+                                      visible: afterTimeVisibility[1],
+                                      child: TextFormField(
+                                        enableInteractiveSelection: false,
+                                        autofocus: true,
+                                        decoration: const InputDecoration(
+                                          contentPadding:
+                                          EdgeInsets.fromLTRB(
+                                              2.0, 10.0, 20.0, 8.0),
+                                          hintText: ' ',
+                                          filled: true,
+                                          fillColor:
+                                          Color.fromARGB(30, 6, 3, -10),
+                                          focusColor: Colors.grey,
+                                          border: InputBorder.none,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        controller:
+                                        afterDhuhrTimeController,
+                                        onChanged: (value) {},
+                                        validator: (value) {
+                                          if (value!.isEmpty &&
+                                              afterTimeVisibility[1]) {
+                                            return 'Veuillez saisir une valeur';
+                                          }
+                                          return null;
+                                        },
+                                        inputFormatters: <
+                                            TextInputFormatter>[
+                                          //WhitelistingTextInputFormatter.digitsOnly
+                                          FilteringTextInputFormatter.allow(
+                                              expression)
+                                        ],
+                                        keyboardType: const TextInputType
+                                            .numberWithOptions(
+                                          signed: true,
+                                        ),
+                                        // Only numbers can be entered
+                                      ),
+                                    ))
+                              ]),
+                              Row(children: [
+                                const Expanded(flex: 2, child: Text(' العصر')),
+                                //  const Expanded(child: Text('الساعة ')),
+                                Expanded(
+                                  flex: 3,
+                                  child: TextButton(
+                                    style: TextButton.styleFrom(
+                                      primary: Colors.grey,
+                                    ),
+                                    child: afterTimeVisibility[2]
+                                        ? const Text(
+                                      ' بعدالاذان بـ',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18),
+                                    )
+                                        : const Text(
+                                      ' الساعة ',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18),
+                                    ),
+                                    onPressed: () async {
+                                      setState(() {
+                                        afterTimeVisibility[2] =
+                                        !afterTimeVisibility[2];
+                                      });
+                                    },
+                                  ),
+                                ),
+                                !afterTimeVisibility[2]
+                                    ? Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                      padding: const EdgeInsets.all(15),
+                                      height: 50,
+                                      child: Center(
+                                          child: TextField(
+                                            controller: asrTimeController,
+                                            //editing controller of this TextField
+                                            decoration: InputDecoration(
+                                              hintText:
+                                              prayerTimesManager.asr,
+                                            ),
+                                            readOnly: true,
+                                            //set it true, so that user will not able to edit text
+                                            onTap: () async {
+                                              TimeOfDay? pickedTime =
+                                              await showTimePicker(
+                                                initialTime: TimeOfDay.now(),
+                                                context: context,
+                                              );
+
+                                              if (pickedTime != null) {
+                                                // print(pickedTime.format(context));   //output 10:51 PM
+                                                DateTime parsedTime =
+                                                DateFormat.Hm().parse(
+                                                    pickedTime
+                                                        .format(context)
+                                                        .toString());
+                                                //converting to DateTime so that we can further format on different pattern.
+                                                print(
+                                                    parsedTime); //output 1970-01-01 22:53:00.000
+                                                String formattedTime =
+                                                DateFormat('HH:mm')
+                                                    .format(parsedTime);
+                                                print(
+                                                    formattedTime); //output 14:59:00
+                                                //DateFormat() is from intl package, you can format the time on any pattern you need.
+
+                                                setState(() {
+                                                  asrTimeController.text =
+                                                      formattedTime; //set the value of text field.
+                                                });
+                                              } else {
+                                                print("Time is not selected");
+                                              }
+                                            },
+                                          ))),
+                                )
+                                    : Expanded(
+                                    flex: 3,
+                                    child: Visibility(
+                                      visible: afterTimeVisibility[2],
+                                      child: TextFormField(
+                                        enableInteractiveSelection: false,
+                                        autofocus: true,
+                                        decoration: const InputDecoration(
+                                          contentPadding:
+                                          EdgeInsets.fromLTRB(
+                                              2.0, 10.0, 20.0, 8.0),
+                                          hintText: ' ',
+                                          filled: true,
+                                          fillColor:
+                                          Color.fromARGB(30, 6, 3, -10),
+                                          focusColor: Colors.grey,
+                                          border: InputBorder.none,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        controller: afterAsrTimeController,
+                                        onChanged: (value) {},
+                                        validator: (value) {
+                                          if (value!.isEmpty &&
+                                              afterTimeVisibility[2]) {
+                                            return 'Veuillez saisir une valeur';
+                                          }
+                                          return null;
+                                        },
+                                        inputFormatters: <
+                                            TextInputFormatter>[
+                                          //WhitelistingTextInputFormatter.digitsOnly
+                                          FilteringTextInputFormatter.allow(
+                                              expression)
+                                        ],
+                                        keyboardType: const TextInputType
+                                            .numberWithOptions(
+                                          signed: true,
+                                        ),
+                                        // Only numbers can be entered
+                                      ),
+                                    ))
+                              ]),
+                              Row(children: [
+                                const Expanded(flex: 2, child: Text(' المغرب')),
+                                Expanded(
+                                  flex: 3,
+                                  child: TextButton(
+                                    style: TextButton.styleFrom(
+                                      primary: Colors.grey,
+                                    ),
+                                    child: afterTimeVisibility[3]
+                                        ? const Text(
+                                      ' بعدالاذان بـ',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18),
+                                    )
+                                        : const Text(
+                                      ' الساعة ',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18),
+                                    ),
+                                    onPressed: () async {
+                                      setState(() {
+                                        afterTimeVisibility[3] =
+                                        !afterTimeVisibility[3];
+                                      });
+                                    },
+                                  ),
+                                ),
+                                !afterTimeVisibility[3]
+                                    ? Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                      padding: const EdgeInsets.all(15),
+                                      height: 50,
+                                      child: Center(
+                                          child: TextField(
+                                            controller: maghribTimeController,
+                                            //editing controller of this TextField
+                                            decoration: InputDecoration(
+                                              hintText:
+                                              prayerTimesManager.maghrib,
+                                            ),
+                                            readOnly: true,
+                                            //set it true, so that user will not able to edit text
+                                            onTap: () async {
+                                              TimeOfDay? pickedTime =
+                                              await showTimePicker(
+                                                initialTime: TimeOfDay.now(),
+                                                context: context,
+                                              );
+
+                                              if (pickedTime != null) {
+                                                // print(pickedTime.format(context));   //output 10:51 PM
+                                                DateTime parsedTime =
+                                                DateFormat.Hm().parse(
+                                                    pickedTime
+                                                        .format(context)
+                                                        .toString());
+                                                //converting to DateTime so that we can further format on different pattern.
+                                                print(
+                                                    parsedTime); //output 1970-01-01 22:53:00.000
+                                                String formattedTime =
+                                                DateFormat('HH:mm')
+                                                    .format(parsedTime);
+                                                print(
+                                                    formattedTime); //output 14:59:00
+                                                //DateFormat() is from intl package, you can format the time on any pattern you need.
+
+                                                setState(() {
+                                                  maghribTimeController.text =
+                                                      formattedTime; //set the value of text field.
+                                                });
+                                              } else {
+                                                print("Time is not selected");
+                                              }
+                                            },
+                                          ))),
+                                )
+                                    : Expanded(
+                                    flex: 3,
+                                    child: Visibility(
+                                      visible: afterTimeVisibility[3],
+                                      child: TextFormField(
+                                        enableInteractiveSelection: false,
+                                        autofocus: true,
+                                        decoration: const InputDecoration(
+                                          contentPadding:
+                                          EdgeInsets.fromLTRB(
+                                              2.0, 10.0, 20.0, 8.0),
+                                          hintText: ' ',
+                                          filled: true,
+                                          fillColor:
+                                          Color.fromARGB(30, 6, 3, -10),
+                                          focusColor: Colors.grey,
+                                          border: InputBorder.none,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        controller:
+                                        afterMaghribTimeController,
+                                        onChanged: (value) {},
+                                        validator: (value) {
+                                          if (value!.isEmpty &&
+                                              afterTimeVisibility[3]) {
+                                            return 'Veuillez saisir une valeur';
+                                          }
+                                          return null;
+                                        },
+                                        inputFormatters: <
+                                            TextInputFormatter>[
+                                          //WhitelistingTextInputFormatter.digitsOnly
+                                          FilteringTextInputFormatter.allow(
+                                              expression)
+                                        ],
+                                        keyboardType: const TextInputType
+                                            .numberWithOptions(
+                                          signed: true,
+                                        ),
+                                        // Only numbers can be entered
+                                      ),
+                                    ))
+                              ]),
+                              Row(children: [
+                                const Expanded(flex: 2, child: Text(' العشاء')),
+                                Expanded(
+                                  flex: 3,
+                                  child: TextButton(
+                                    style: TextButton.styleFrom(
+                                      primary: Colors.grey,
+                                    ),
+                                    child: afterTimeVisibility[4]
+                                        ? const Text(
+                                      ' بعدالاذان بـ',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18),
+                                    )
+                                        : const Text(
+                                      ' الساعة ',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18),
+                                    ),
+                                    onPressed: () async {
+                                      setState(() {
+                                        afterTimeVisibility[4] =
+                                        !afterTimeVisibility[4];
+                                      });
+                                    },
+                                  ),
+                                ),
+                                !afterTimeVisibility[4]
+                                    ? Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                      padding: const EdgeInsets.all(15),
+                                      height: 50,
+                                      child: Center(
+                                          child: TextField(
+                                            controller: ishaTimeController,
+                                            //editing controller of this TextField
+                                            decoration: InputDecoration(
+                                              hintText:
+                                              prayerTimesManager.isha,
+                                            ),
+                                            readOnly: true,
+                                            //set it true, so that user will not able to edit text
+                                            onTap: () async {
+                                              TimeOfDay? pickedTime =
+                                              await showTimePicker(
+                                                initialTime: TimeOfDay.now(),
+                                                context: context,
+                                              );
+
+                                              if (pickedTime != null) {
+                                                // print(pickedTime.format(context));   //output 10:51 PM
+                                                DateTime parsedTime =
+                                                DateFormat.Hm().parse(
+                                                    pickedTime
+                                                        .format(context)
+                                                        .toString());
+                                                //converting to DateTime so that we can further format on different pattern.
+                                                print(
+                                                    parsedTime); //output 1970-01-01 22:53:00.000
+                                                String formattedTime =
+                                                DateFormat('HH:mm')
+                                                    .format(parsedTime);
+                                                print(
+                                                    formattedTime); //output 14:59:00
+                                                //DateFormat() is from intl package, you can format the time on any pattern you need.
+
+                                                setState(() {
+                                                  ishaTimeController.text =
+                                                      formattedTime; //set the value of text field.
+                                                });
+                                              } else {
+                                                print("Time is not selected");
+                                              }
+                                            },
+                                          ))),
+                                )
+                                    : Expanded(
+                                    flex: 3,
+                                    child: Visibility(
+                                      visible: afterTimeVisibility[4],
+                                      child: TextFormField(
+                                        enableInteractiveSelection: false,
+                                        autofocus: true,
+                                        decoration: const InputDecoration(
+                                          contentPadding:
+                                          EdgeInsets.fromLTRB(
+                                              2.0, 10.0, 20.0, 8.0),
+                                          hintText: ' ',
+                                          filled: true,
+                                          fillColor:
+                                          Color.fromARGB(30, 6, 3, -10),
+                                          focusColor: Colors.grey,
+                                          border: InputBorder.none,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        controller: afterIshaTimeController,
+                                        onChanged: (value) {},
+                                        validator: (value) {
+                                          if (value!.isEmpty &&
+                                              afterTimeVisibility[4]) {
+                                            return 'Veuillez saisir une valeur';
+                                          }
+                                          return null;
+                                        },
+                                        inputFormatters: <
+                                            TextInputFormatter>[
+                                          //WhitelistingTextInputFormatter.digitsOnly
+                                          FilteringTextInputFormatter.allow(
+                                              expression)
+                                        ],
+                                        keyboardType: const TextInputType
+                                            .numberWithOptions(
+                                          signed: true,
+                                        ),
+                                        // Only numbers can be entered
+                                      ),
+                                    ))
+                              ]),
+
+                            ])),
+                      ))
+                ],
               ),
             )),
         Step(
@@ -1312,7 +2123,8 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
             title: const Text(''),
             content: Form(
               key: _formKeys[3],
-              child: Column(
+              child: widget.masjid.type== 'MASJID'?
+              Column(
                 children: [
                   SizedBox(
                     height: 150,
@@ -1369,7 +2181,7 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
                                   top: 0,
                                   right: 0,
                                   child: IconButton(
-                                    icon: Icon(Icons.delete_forever),
+                                    icon: const Icon(Icons.delete_forever),
                                     onPressed: () {
                                       setState(() {
                                         _selectedImages.removeAt(index);
@@ -1381,7 +2193,8 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
                         }),
                   ),
                 ],
-              ),
+              )
+              :Container(),
             )),
         Step(
             state:
@@ -1390,7 +2203,8 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
             title: const Text(''),
             content: Form(
               key: _formKeys[4],
-              child: Column(
+              child: widget.masjid.type== 'MASJID'?
+              Column(
                 children: [
                   SizedBox(
                     height: 150,
@@ -1460,7 +2274,7 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
                         }),
                   ),
                 ],
-              ),
+              ):Container(),
             )),
         Step(
             state: StepState.complete,
@@ -1480,22 +2294,23 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
                         color: Colors.blueGrey,
                         fontWeight: FontWeight.bold),
                   )),
-                  Text('Nom:    ${responsibleController.text}',
+                  Text(responsibleController.text!=''? 'Nom:    ${responsibleController.text}'
+                      : '',
                       style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(
                     height: 5,
                   ),
-                  Text('Nom de la mosquée: ${masjidNameController.text}',
+                  Text(masjidNameController.text != ''? 'Nom de la mosquée: ${masjidNameController.text}'
+                      :'',
                       style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(
                     height: 5,
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text('Adresse: ${addressController.text}',
+
+                  Text(addressController.text != '' ? 'Adresse: ${addressController.text}'
+                      :'',
                       style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(
@@ -1536,7 +2351,7 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
                   const SizedBox(
                     height: 5,
                   ),
-                  SizedBox(
+                  widget.masjid.type== 'MASJID'?  SizedBox(
                     height: 250,
                     child: Column(
                       children: [
@@ -1670,6 +2485,7 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
                       ],
                     ),
                   )
+                      :Container()
                 ],
               ),
             ))
@@ -1744,7 +2560,7 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
 
                                     if (success2) {
                                       if (!mounted) return;
-                                      Utils.goToWithReplacement(
+                                      UtilsMasjid.goToWithReplacement(
                                           context, const HomePage());
                                     } else {
                                       //TODO chnoua ysir ki mayet3addech
@@ -1916,6 +2732,7 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
         .collection('masjids')
         .doc(widget.masjid.id)
         .update({
+      "type":dropdownValue,
       "responsibleName": responsibleController.text,
       "address": addressController.text,
       "name": masjidNameController.text,
@@ -1993,7 +2810,8 @@ class _MasjidUpdateState extends State<MasjidUpdate> {
     return success;
   }
 
-  void selectImages() async {
+  void
+  selectImages() async {
     final List<XFile> selectedImages =
         await imagePicker.pickMultiImage(imageQuality: 20);
     if (selectedImages.isNotEmpty) {

@@ -24,8 +24,8 @@ class _GeoLocationState extends State<GeoLocation> {
     Position position = await _determinePosition();
     //print(position.latitude) ;
     //print(position.latitude) ;
-    Utils.localStorage!.setDouble("latitude", position.latitude);
-    Utils.localStorage!.setDouble("longitude", position.longitude);
+    UtilsMasjid.localStorage!.setDouble("latitude", position.latitude);
+    UtilsMasjid.localStorage!.setDouble("longitude", position.longitude);
     latitude = position.latitude;
     longitude = position.longitude;
     _position = position;

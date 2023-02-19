@@ -16,9 +16,10 @@ import 'package:prayertime/common/globals.dart';
 import 'package:prayertime/common/masjid.dart';
 import 'package:prayertime/common/prayer_times.dart';
 import 'package:prayertime/common/user_service.dart';
-import 'package:prayertime/masjid_update.dart';
+
 import 'package:prayertime/services/auth_service.dart';
 import 'package:prayertime/services/masjid_services.dart';
+import 'package:prayertime/setting_masjid/masjid_update.dart';
 import 'package:prayertime/user.dart';
 
 class NewRegister extends StatefulWidget {
@@ -295,7 +296,8 @@ MyMasjid? _masjid;
             title: const Text(''),
             content: Form(
               key: _formKeys[2],
-              child: Column(
+              child: dropdownValue== "MASJID" ?
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -407,6 +409,111 @@ MyMasjid? _masjid;
                     height: 10,
                   ),
                 ],
+              )
+              :Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Center(
+                      child: Text(
+                        'IDENTIFICATION DU LIEU',
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.blueGrey,
+                            fontWeight: FontWeight.bold),
+                      )),
+                  TextFormField(
+                    controller: responsibleController,
+                    keyboardType: TextInputType.text,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      filled: true,
+                      icon: Icon(Icons.person),
+                      labelText: 'Nom du responsable ',
+                      hintText: 'Nom du responsable',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Veuillez saisir le nom du responsable';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    controller: masjidNameController,
+                    keyboardType: TextInputType.text,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      filled: true,
+                      icon: Icon(Icons.home),
+                      labelText: 'Nom du masjid ',
+                      hintText: 'Nom du masjid',
+                    ),
+                    // validator: (value) {
+                    //   if (value!.isEmpty) {
+                    //     return 'Veuillez saisir le nom du masjid';
+                    //   }
+                    //   return null;
+                    // },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    controller: addressController,
+                    keyboardType: TextInputType.text,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      filled: true,
+                      icon: Icon(Icons.location_city),
+                      labelText: 'Adresse ',
+                      hintText: 'Adresse ',
+                    ),
+                    // validator: (value) {
+                    //   if (value!.isEmpty) {
+                    //     return 'Veuillez saisir l\'adresse du masjid';
+                    //   }
+                    //   return null;
+                    // },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        SelectState(
+                          // style: TextStyle(color: Colors.red),
+                          onCountryChanged: (value) {
+                            setState(() {
+                              countryValue = value;
+                            });
+                          },
+                          onStateChanged: (value) {
+                            setState(() {
+                              stateValue = value;
+                            });
+                          },
+                          onCityChanged: (value) {
+                            setState(() {
+                              cityValue = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                ],
               ),
             )),
         Step(
@@ -416,7 +523,8 @@ MyMasjid? _masjid;
             title: const Text(''),
             content: Form(
               key: _formKeys[3],
-              child: Column(
+              child: dropdownValue== "MASJID" ?
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -463,22 +571,6 @@ MyMasjid? _masjid;
                           // print(placemarks![0].country);
                         },
                       )
-                      // GoogleMap(
-                      //   initialCameraPosition: CameraPosition(
-                      //     target: _center,
-                      //     zoom: 11.0,
-                      //   ),
-                      //   onTap: (value) {
-                      //     print(value);
-                      //     setState(() {
-                      //       _center = value;
-                      //     });
-                      //     print(_center);
-                      //     _getPlace(_center);
-                      //     // print( placemarks![0].locality );
-                      //     // print( placemarks![0].country);
-                      //   },
-                      // )
                   ),
                   placemarks != null
                       ? SizedBox(
@@ -486,6 +578,63 @@ MyMasjid? _masjid;
                           child: Text(placemarks![0].locality.toString() +
                               placemarks![0].country.toString()),
                         )
+                      : Container()
+                ],
+              )
+              :Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Center(
+                      child: Text(
+                        'LOCALISATION DU LIEU',
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.blueGrey,
+                            fontWeight: FontWeight.bold),
+                      )),
+                  SizedBox(
+                      height: 400,
+                      width: 350,
+                      child: GoogleMap(
+                        myLocationButtonEnabled: true,
+                        initialCameraPosition: CameraPosition(
+                          target: _center,
+                          zoom: 11.0,
+                        ),
+                        markers: {marker},
+                        polygons: googleMapExampleAppPage.polygons,
+                        polylines: googleMapExampleAppPage.polylines,
+                        circles: googleMapExampleAppPage.circles,
+                        onMapCreated: (GoogleMapController controller) {
+                          _controller = controller;
+                        },
+                        onTap: (value) {
+                          print(value);
+                          setState(() {
+                            marker = Marker(
+                                draggable: true,
+                                markerId: const MarkerId("1"),
+                                position: value,
+                                icon: BitmapDescriptor.defaultMarker,
+                                onTap: () {
+                                  _onMarkerTapped("1");
+                                });
+                            _center = value;
+                          });
+                          print(_center);
+                          _getPlace(_center);
+                          // print(placemarks![0].locality);
+                          // print(placemarks![0].country);
+                        },
+                      )
+                  ),
+                  placemarks != null
+                      ? SizedBox(
+                    height: 40,
+                    child: Text(placemarks![0].locality.toString() +
+                        placemarks![0].country.toString()),
+                  )
                       : Container()
                 ],
               ),
@@ -496,7 +645,8 @@ MyMasjid? _masjid;
             title: const Text(''),
             content: Form(
               key: _formKeys[4],
-              child: Column(
+              child: dropdownValue== "MASJID" ?
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -587,6 +737,101 @@ MyMasjid? _masjid;
                         )
                       : Container(),
                 ],
+              )
+              :Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Center(
+                      child: Text(
+                        'Confirmation',
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.blueGrey,
+                            fontWeight: FontWeight.bold),
+                      )),
+                  Text('Nom:    ${_nameController.text}',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text('Prénom: ${_lastnameController.text}',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text('Email: ${_emailController.text}',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  const Text('Mot de passe : *****',
+                      style:
+                      TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(responsibleController.text!=''? 'Responsable ${responsibleController.text}'
+                      :'',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(masjidNameController.text!=''? 'Nom du masjid ${masjidNameController.text}'
+                      :'',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(addressController.text !='' ? 'Adresse du masjid ${addressController.text}'
+                      :'',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text('Pays ${countryValue}',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text('Gouvernorat: ${stateValue}',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text('Delegation: ${cityValue}',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  placemarks != null
+                      ? Column(
+                    children: [
+                      Text('Pays: ${placemarks![0].country}',
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text('Ville: ${placemarks![0].locality}',
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                    ],
+                  )
+                      : Container(),
+                ],
               ),
             ))
       ];
@@ -660,7 +905,7 @@ MyMasjid? _masjid;
 
                               if (success ) {
                                 if (!mounted) {
-                                  Utils.goToWithReplacement(
+                                  UtilsMasjid.goToWithReplacement(
                                     context,  MasjidUpdate(user: currentUser!,masjid: _masjid!,));
                                 }
                               } else {
@@ -705,9 +950,10 @@ MyMasjid? _masjid;
   Future<void> addMasjid() async {
     bool success = false;
     FirebaseFirestore.instance.collection('masjids').add({
-      "responsibleName": responsibleController.text,
-      "address": addressController.text,
-      "name": masjidNameController.text,
+      "type":dropdownValue,
+      "responsibleName":responsibleController.text?? '' ,
+      "address": addressController.text?? '',
+      "name": masjidNameController.text?? '',
       "country": countryValue,
       "city": cityValue,
       "state": stateValue,
@@ -740,18 +986,18 @@ MyMasjid? _masjid;
       await addUser();
       await addMasjid();
       masjidService.getMasjidwithUserId(FirebaseAuth.instance.currentUser?.uid).then((value) => _masjid=value);
-      Utils()
+      UtilsMasjid()
           .toastMessage("Enregistrement terminé avec succès", Colors.blue);
       if (!mounted) {
-        Utils.goToWithReplacement(
+        UtilsMasjid.goToWithReplacement(
             context,  MasjidUpdate(user: currentUser!,masjid: _masjid!,));
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        Utils().toastMessage(
+        UtilsMasjid().toastMessage(
             'The password provided is too weak.', Colors.deepOrange);
       } else if (e.code == 'email-already-in-use') {
-        Utils().toastMessage(
+        UtilsMasjid().toastMessage(
             'The account already exists for that email.', Colors.deepOrange);
       }
     } catch (e) {

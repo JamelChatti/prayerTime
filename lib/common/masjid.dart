@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:prayertime/common/globals.dart';
-import 'package:prayertime/common/masjid.dart';
+import 'package:prayertime/common/prayer_times.dart';
+import 'package:prayertime/common/utils.dart';
 
 class MyMasjid {
   String responsibleName = '';
@@ -27,10 +27,12 @@ class MyMasjid {
   late String userId;
   late bool existJoumoua;
   late bool existAid;
-  late bool existtAhajod;
+  late bool existTahajod;
   late bool carPark;
   late GeoPoint positionMasjid;
-
+  late String introduction;
+  late String type;
+  late bool isActive;
 
   MyMasjid.construct(
       this.responsibleName,
@@ -55,9 +57,12 @@ class MyMasjid {
       this.id,
       this.existJoumoua,
       this.existAid,
-      this.existtAhajod,
+      this.existTahajod,
       this.carPark,
-      this.positionMasjid);
+      this.positionMasjid,
+      this.introduction,
+      this.type,
+      this.isActive);
 
   String toJson() {
     return json.encode(toMap());
@@ -82,13 +87,16 @@ class MyMasjid {
       'tahajod': tahajod,
       'ablution': ablution,
       'handicapPass': handicapPass,
-      'existJoumoua': existJoumoua,
       'womenMousalla': womenMousalla,
-      'existAid': existAid,
       'userId': userId,
-      'existtAhajod': existtAhajod,
+      'existJoumoua': existJoumoua,
+      'existAid': existAid,
+      'existTahajod': existTahajod,
       'carPark': carPark,
       'positionMasjid': positionMasjid,
+      'introduction': introduction,
+      'type': type,
+      'isActive': isActive
     };
     return map;
   }
@@ -165,16 +173,22 @@ class MyMasjid {
     try {
       existAid = documentSnapshot["existAid"];
     } catch (e) {}
-    bool existtAhajod = false;
+    bool existTahajod = false;
     try {
-      existtAhajod = documentSnapshot["existtAhajod"];
+      existTahajod = documentSnapshot["existTahajod"];
     } catch (e) {}
     bool carPark = false;
     try {
       carPark = documentSnapshot["carPark"];
     } catch (e) {}
+    String introduction = '';
+    try {
+      introduction = documentSnapshot['introduction'];
+    } catch (e) {}
 
     final GeoPoint positionMasjid = documentSnapshot['positionMasjid'];
+    String type = documentSnapshot['type'];
+    bool isActive = documentSnapshot['isActive'];
 
     return MyMasjid.construct(
         responsibleName,
@@ -199,9 +213,12 @@ class MyMasjid {
         id,
         existJoumoua,
         existAid,
-        existtAhajod,
+        existTahajod,
         carPark,
-        positionMasjid);
+        positionMasjid,
+        introduction,
+        type,
+        isActive);
   }
 
   factory MyMasjid.fromJson(String userJson) {
@@ -233,10 +250,15 @@ class MyMasjid {
         map["id"],
         map["existJoumoua"],
         map["existAid"],
-        map["existtAhajod"],
+        map["existTahajod"],
         map["carPark"],
-        GeoPoint(map['positionMasjid']['latitude'],
-            map['positionMasjid']['longitude']));
+        GeoPoint(
+          map['positionMasjid']['latitude'],
+          map['positionMasjid']['longitude'],
+        ),
+        map["introduction"],
+        map["type"],
+        map['isActive']);
   }
 }
 
@@ -271,4 +293,6 @@ class Salat {
   factory Salat.fromMap(Map map) {
     return Salat.construct(map["fixed"], map["time"]);
   }
+  
+
 }
