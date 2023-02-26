@@ -111,7 +111,7 @@ class _ContainerTimeBeforeIqamaState extends State<ContainerTimeBeforeIqama> {
         // ? Container():
         isLoading
             ? Container()
-            : StreamBuilder<DateTime>(
+            :  StreamBuilder<DateTime>(
                 stream: stream,
                 builder: (context, snapshot) {
                   final now = snapshot.data ?? DateTime.now();

@@ -88,6 +88,8 @@ dependencies:
   equatable: ^2.0.5
   flutter_bloc: ^8.1.2
   wakelock: ^0.6.2
+  country_pickers: ^2.0.0
+
 
 
 

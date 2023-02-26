@@ -13,6 +13,7 @@ import 'package:prayertime/common/prayer_times.dart';
 import 'package:prayertime/common/utils.dart';
 import 'package:prayertime/display_on_tv/timer_controller.dart';
 import 'package:prayertime/quibla/loading.dart';
+import 'package:wakelock/wakelock.dart';
 
 class DisplayOnTV extends StatefulWidget {
   final MyMasjid? mainMasjid;
@@ -87,7 +88,7 @@ class _DisplayOnTVState extends State<DisplayOnTV> {
     getMonthHijriInArabic();
 
     getDuration();
-
+    Wakelock.enable();
     //Get.put(TimerController());
   }
 

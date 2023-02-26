@@ -2,16 +2,19 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:prayertime/class/current_masjid_location.dart';
+import 'package:prayertime/class/hive_masjid.dart';
 import 'package:prayertime/common/masjid.dart';
 import 'package:prayertime/common/prayer_times.dart';
 import 'package:prayertime/quibla/loading.dart';
+import 'package:prayertime/services/adhan_service.dart';
 import 'package:prayertime/services/masjid_services.dart';
 import 'dart:ui' as ui;
 
 class CurrentMasjidIquama extends StatefulWidget {
-  final MyMasjid? mainMasjid;
+  late final MyMasjid? mainMasjid;
   bool isLoading;
 
   CurrentMasjidIquama(
@@ -28,9 +31,36 @@ class _CurrentMasjidIquamaState extends State<CurrentMasjidIquama> {
   PrayerTimesManager prayerTimesManager = PrayerTimesManager();
   LatLng? target;
   static final f = DateFormat('dd-MM-yyyy');
+  var mainMasjidsBox = Hive.box<HiveMasjid>('mainMasjid');
+  List<HiveMasjid> myMasjids = [];
+
+  var myMasjidsBox = Hive.box<HiveMasjid>('myMasjids');
 
   HijriCalendar now = HijriCalendar.now();
   String? month;
+
+  void getMainMasjid(HiveMasjid? hiveMainMasjid) {
+    if (widget.mainMasjid == null ||
+        hiveMainMasjid == null ||
+        hiveMainMasjid.id != widget.mainMasjid!.id) {
+      widget.mainMasjid = null;
+      setState(() {
+        widget.isLoading = true;
+      });
+      if (hiveMainMasjid != null) {
+        MasjidService.getMasjidWithId(hiveMainMasjid.id).then((value) {
+          widget.mainMasjid = value;
+          setState(() {
+            widget.isLoading = false;
+          });
+        });
+      } else {
+        setState(() {
+          widget.isLoading = false;
+        });
+      }
+    }
+  }
 
   void getTargetMasjid() async {
     target = LatLng(widget.mainMasjid!.positionMasjid.latitude,
@@ -83,10 +113,14 @@ class _CurrentMasjidIquamaState extends State<CurrentMasjidIquama> {
   void initState() {
     super.initState();
     getMonthHijriInArabic();
+    myMasjids = myMasjidsBox.values.toList();
+    myMasjids = myMasjidsBox.values.toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    HiveMasjid masjid = mainMasjidsBox.values.elementAt(0);
+    PrayerTimesMasjid prayerTimesManager = PrayerTimesMasjid(masjid.latitude, masjid.longitude);
     stream = Stream.periodic(const Duration(seconds: 1), (_) => DateTime.now());
     return widget.isLoading
         ? LoadingIndicator()
@@ -146,6 +180,7 @@ class _CurrentMasjidIquamaState extends State<CurrentMasjidIquama> {
                           //     ],
                           //   ),
                           // ),
+                          mainMasjidDropdown(),
 
                           Padding(
                             padding: const EdgeInsets.all(2.0),
@@ -440,6 +475,35 @@ class _CurrentMasjidIquamaState extends State<CurrentMasjidIquama> {
                 ),
               );
   }
+  Widget mainMasjidDropdown() {
+    Widget dropdown = widget.isLoading
+        ? LoadingIndicator()
+        : widget.mainMasjid != null
+        ? DropdownButton<HiveMasjid>(
+      value: widget.mainMasjid == null
+          ? null
+          :
+      myMasjids
+          .firstWhere((element) => widget.mainMasjid!.id == element.id),
+      onChanged: (newMainMasjid) {
+        if (newMainMasjid != null) {
+          mainMasjidsBox.put("mainMasjid", newMainMasjid);
+          getMainMasjid(newMainMasjid);
+          setState(() => {});
+        }
+      },
+      items: [
+        for (final masjid in myMasjids)
+          DropdownMenuItem(
+            value: masjid,
+            child: Text(masjid.name),
+          )
+      ],
+    )
+        : Container();
+    return dropdown;
+  }
+
 }
 
 class Clock extends StatelessWidget {
@@ -458,4 +522,7 @@ class Clock extends StatelessWidget {
       },
     );
   }
+
+
+
 }

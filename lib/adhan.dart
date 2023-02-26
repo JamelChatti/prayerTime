@@ -111,7 +111,6 @@ class _AdhanState extends State<Adhan> {
     _getCurrentCity();
 
     params.madhab = Madhab.shafi;
-    final prayerTimes = PrayerTimes.today(myCoordinates, params);
     nyParams.madhab = Madhab.shafi;
     final localPlace = Coordinates(_position == null ? locaLatitude :_position!.latitude , _position == null ? locaLongitude :_position!.longitude);
     final nyPrayerTimes =

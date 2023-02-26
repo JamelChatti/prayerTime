@@ -1,5 +1,6 @@
 
 
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:adhan/adhan.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:prayertime/common/masjid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class UtilsMasjid {
   static SharedPreferences? localStorage;
@@ -16,6 +18,13 @@ class UtilsMasjid {
   }
 
 
+  static Future<String> getTimezone(lat, long) async{
+    var apiKey = 'AIzaSyBVB2HLxdyG4Zt-067212h_LRcApdOUAsQ';
+    var url = 'https://maps.googleapis.com/maps/api/timezone/json?location=' + lat.toString() + ',' + long.toString() + '&timestamp=1331161200&key=' + apiKey;
+    http.Response response = await http.get(Uri.parse(url));
+    var data = jsonDecode(utf8.decode(response.bodyBytes));
+    return data["timeZoneId"];
+  }
 
   static goTo(context, page) {
     //SchedulerBinding.instance.addPostFrameCallback((_) {

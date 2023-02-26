@@ -20,6 +20,7 @@ import 'package:prayertime/common/prayer_times.dart';
 import 'package:prayertime/current_masgid_iquama.dart';
 import 'package:prayertime/favorite_masjid.dart';
 import 'package:prayertime/geo_location.dart';
+import 'package:prayertime/location_search.dart';
 import 'package:prayertime/login/login.dart';
 import 'package:prayertime/map_screen.dart';
 import 'package:prayertime/my_drawer.dart';
@@ -70,7 +71,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void getMainMasjid(HiveMasjid? hiveMainMasjid) {
-    if (mainMasjid == null || hiveMainMasjid == null || hiveMainMasjid.id != mainMasjid!.id) {
+    if (mainMasjid == null ||
+        hiveMainMasjid == null ||
+        hiveMainMasjid.id != mainMasjid!.id) {
       mainMasjid = null;
       setState(() {
         isLoading = true;
@@ -122,9 +125,7 @@ class _HomePageState extends State<HomePage> {
                     CurrentMasjidIquama(
                         mainMasjid: mainMasjid, isLoading: isLoading),
                     QuiblaDirection(),
-                    const Adhan(
-
-                    ),
+                    CitySearchScreen(),
                   ],
                 ),
               ),
@@ -263,17 +264,27 @@ class _HomePageState extends State<HomePage> {
         // if(!asMap.containsKey("email")){
         // }
 
-        await FirebaseFirestore.instance
+        await _firestore
             .collection("tokens")
             .doc(result.docs.elementAt(0).id)
             .update({
           "token": token,
         });
       } else {
-        await FirebaseFirestore.instance.collection("tokens").doc().set({
+        List<String> myMasjidsid = [];
+        // for (int i = 0; i < myMasjids.length; i++){
+        //   myMasjidsid.add({
+        //    myMasjids[i].id
+        //   });}
+        myMasjids.forEach((element) {
+          myMasjidsid.add(element.id);
+        });
+
+        await _firestore.collection("tokens").doc().set({
           "token": token,
           "email": currentUser!.email,
           "model": deviceName,
+          "favMassjid": FieldValue.arrayUnion(myMasjidsid),
           "date": DateTime.now()
         });
       }

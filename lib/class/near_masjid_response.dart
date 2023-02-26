@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -27,6 +28,8 @@ class NearMasjidResponse extends StatefulWidget {
 }
 
 class _NearMasjidResponseState extends State<NearMasjidResponse> {
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   var myMasjidsBox = Hive.box<HiveMasjid>('myMasjids');
   var mainMasjidsBox = Hive.box<HiveMasjid>('mainMasjid');
   List<MyMasjid> masjids = [];
@@ -231,4 +234,11 @@ class _NearMasjidResponseState extends State<NearMasjidResponse> {
     placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
   }
+
+  // Future deleteMasjidFromToken(String id) async{
+  //   await _firestore.collection("tokens")
+  //       .where("favMasjid",isEqualTo: id)
+  //       .delete();
+  // }
+
 }
