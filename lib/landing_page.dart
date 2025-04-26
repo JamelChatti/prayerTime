@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:hive/hive.dart';
 import 'package:prayertime/class/hive_masjid.dart';
-import 'package:prayertime/class/mymasjid_adapter.dart';
+import 'package:prayertime/common/HiveBoxesManager.dart';
+import 'package:prayertime/common/constants.dart';
 import 'package:prayertime/common/globals.dart';
 import 'package:prayertime/common/login_status_enum.dart';
-import 'package:prayertime/common/utils.dart';
 import 'package:prayertime/home_page.dart';
 import 'package:prayertime/services/auth_service.dart';
 import 'package:prayertime/services/masjid_services.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:hive/hive.dart';
+
+import 'common/masjid.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -21,50 +20,47 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   LoginStatus _loginStatus = LoginStatus.loggedOff;
-  final AuthService authService = AuthService();
   bool _isInitialized = false;
-  final databaseReference = FirebaseDatabase.instance.reference();
+  HiveBoxesManager hiveBoxesManager = HiveBoxesManager();
+
   @override
   void initState() {
     super.initState();
-    authService.initListener();
+
     _initialize();
   }
 
-  // void updateHiveFromFirebase() {
-  //   databaseReference.child("your_database_path").once().then((DataSnapshot snapshot) {
-  //     Map data = snapshot.value;
-  //
-  //     // Enregistrer les données mises à jour dans Hive
-  //     Hive.box('your_box_name').put('your_key', data);
-  //   });
-  // }
+  Future<void> initGlobals() async {
+    //init mainMasjid
+    var mainMasjidBox = hiveBoxesManager.mainMasjidBox;
+    HiveMasjid? hiveMainMasjid = mainMasjidBox.get(HiveBoxConst.mainMasjidKey);
+    if (hiveMainMasjid != null) {
+      mainMasjid = await MasjidService.getMasjidWithId(hiveMainMasjid.id);
+    }
+    //init myMasjids
+    var myMasjidsBox = hiveBoxesManager.myMasjidsBox;
+    List<HiveMasjid> myHiveMasjids = myMasjidsBox.values.toList();
+    for (int i = 0; i < myHiveMasjids.length; i++) {
+      HiveMasjid hiveMasjid = myHiveMasjids[i];
+      MyMasjid? myMasjid = await MasjidService.getMasjidWithId(hiveMasjid.id);
+      if (myMasjid == null) {
+        myMasjidsBox.delete(hiveMasjid.id);
+      } else {
+        myMasjids.add(myMasjid);
+      }
+    }
+  }
 
   void _initialize() async {
+
+    // await hiveBoxesManager.deleteHiveBoxes();
+
+    await hiveBoxesManager.initHiveBoxes();
+    await initGlobals();
+
+    final AuthService authService = AuthService();
     _loginStatus = await authService.checkIfLoggedIn();
-    String favMasjidId = UtilsMasjid.localStorage!.getString("favMasjidId") ?? "";
-    if (favMasjidId.isNotEmpty) {
-      favMasjid = await MasjidService.getMasjidWithId(favMasjidId);
-    }
-    double? localLatitude = UtilsMasjid.localStorage!.getDouble("latitude");
-    if (localLatitude != null) {
-      latitude = localLatitude;
-    }
-    double? localLongitude = UtilsMasjid.localStorage!.getDouble("longitude");
-    if (localLongitude != null) {
-      longitude = localLongitude;
-    }
-
-    Hive.registerAdapter(HiveMasjidAdapter());
-
-   // Hive.deleteBoxFromDisk("myMasjids");
-   // Hive.deleteBoxFromDisk("mainMasjid");
-    if (!Hive.isBoxOpen('myMasjids')) {
-      await Hive.openBox<HiveMasjid>('myMasjids');
-    }
-    if (!Hive.isBoxOpen('mainMasjid')) {
-      await Hive.openBox<HiveMasjid>('mainMasjid');
-    }
+    authService.initListener();
 
     setState(() {
       _isInitialized = true;

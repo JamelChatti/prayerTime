@@ -1,0 +1,15 @@
+{
+  "@@locale": "en",
+  "favorite": "Favorite",
+  "city": "City",
+  "proximity": "Proximity",
+  "quibla": "Quibla",
+  "iqama": "Iqama",
+  "countrySelection": "Country Selection",
+  "region": "Region",
+  "currentLocation": "Current Location",
+  "lastKnownLocation": "Last Known Location",
+  "@helloWorld": {
+    "description": "The conventional newborn programmer greeting"
+  }
+}

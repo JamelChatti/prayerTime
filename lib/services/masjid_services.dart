@@ -39,12 +39,6 @@ class MasjidService {
         masjid = MyMasjid.fromDocument(result);
       });
     });
-    // then((ds) {
-    //   if (ds.exists) {
-    //     //String usertype
-    //     masjid = MyMasjid.fromDocument();
-    //   }
-    // });
     return masjid;
   }
 

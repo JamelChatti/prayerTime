@@ -1,0 +1,10 @@
+{
+  "favorite": "المحبذة",
+  "city": "مكان",
+  "proximity": "الاقرب",
+  "quibla": "قبلة",
+  "iqama": "اقامة",
+  "@helloWorld": {
+    "description": "The conventional newborn programmer greeting"
+  }
+}

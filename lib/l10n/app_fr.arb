@@ -1,0 +1,10 @@
+{
+  "favorite": "Favorite",
+  "city": "City",
+  "proximity": "Proximité",
+  "quibla": "quibla",
+  "iqama": "iqama",
+  "@helloWorld": {
+    "description": "The conventional newborn programmer greeting"
+  }
+}

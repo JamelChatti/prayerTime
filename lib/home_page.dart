@@ -7,33 +7,24 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:prayertime/adhan.dart';
-import 'package:prayertime/audio/audio_player.dart';
-import 'package:prayertime/class/hive_masjid.dart';
-import 'package:prayertime/class/near_masjid_response.dart';
 import 'package:prayertime/common/globals.dart';
-import 'package:prayertime/common/masjid.dart';
 import 'package:prayertime/common/prayer_times.dart';
-import 'package:prayertime/current_masgid_iquama.dart';
-import 'package:prayertime/favorite_masjid.dart';
-import 'package:prayertime/geo_location.dart';
-import 'package:prayertime/location_search.dart';
 import 'package:prayertime/login/login.dart';
-import 'package:prayertime/map_screen.dart';
-import 'package:prayertime/my_drawer.dart';
-import 'package:prayertime/quibla/loading.dart';
-import 'package:prayertime/quibla/qibla_direction.dart';
-import 'package:prayertime/services/masjid_services.dart';
+import 'package:prayertime/views/my_drawer_views/my_drawer.dart';
+import 'package:prayertime/views/tab_views/current_masjid//iquama.dart';
+import 'package:prayertime/views/tab_views/favorite_masjids/favorite_masjid.dart';
+import 'package:prayertime/views/tab_views/location_search.dart';
+import 'package:prayertime/views/tab_views/near_masjids/near_masjids.dart';
+import 'package:prayertime/views/tab_views/quibla/qibla_direction.dart';
 
 const _kPages = <String, IconData>{
-  'home': Icons.location_on,
+  '': Icons.search,
   'mosqu': Icons.mosque,
   'iqama': Icons.more_time,
   'quibla': LineIcons.kaaba,
-  'people': Icons.people,
+  'localité': Icons.location_on,
 };
 
 class HomePage extends StatefulWidget {
@@ -45,58 +36,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  var myMasjidsBox = Hive.box<HiveMasjid>('myMasjids');
-  var mainMasjidsBox = Hive.box<HiveMasjid>('mainMasjid');
-
-  MyMasjid? mainMasjid;
-  List<HiveMasjid> myMasjids = [];
+  TextEditingController masjidController = TextEditingController();
   PrayerTimesManager prayerTimesManager = PrayerTimesManager();
   Position? _position;
-  bool isLoading = false;
   static final f = DateFormat('dd-MM-yyyy  kk:mm');
 
   @override
   void initState() {
-    saveToken();
+    //saveToken();
     imageCache.clear();
-    initData();
-  }
-
-  void initData() {
-    myMasjids = myMasjidsBox.values.toList();
-    HiveMasjid? hiveMainMasjid = mainMasjidsBox.get('mainMasjid');
-
-    getMainMasjid(hiveMainMasjid);
-  }
-
-  void getMainMasjid(HiveMasjid? hiveMainMasjid) {
-    if (mainMasjid == null ||
-        hiveMainMasjid == null ||
-        hiveMainMasjid.id != mainMasjid!.id) {
-      mainMasjid = null;
-      setState(() {
-        isLoading = true;
-      });
-      if (hiveMainMasjid != null) {
-        MasjidService.getMasjidWithId(hiveMainMasjid.id).then((value) {
-          mainMasjid = value;
-          setState(() {
-            isLoading = false;
-          });
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
-  }
-
-  updateDropdown() {
-    setState(() {
-      initData();
-    });
   }
 
   @override
@@ -106,24 +54,35 @@ class _HomePageState extends State<HomePage> {
       initialIndex: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Iqama'),
-          backgroundColor: Colors.indigo[900],
+          title: Row(
+            children: [
+              Image.asset('images/logoPt.png',
+                fit: BoxFit.contain,
+                height: 50,
+
+                 // AppLocalizations.of(context)!.iqama
+              ),
+
+
+            ],
+          ),
+          backgroundColor: Colors.transparent,
+
         ),
-        drawer: MyDrawer(),
+        drawer: const MyDrawer(),
         body: Container(
           color: Colors.indigo[100],
           child: Column(
             children: [
-              mainMasjidDropdown(),
+              //mainMasjidDropdown(),
               const Divider(),
               Expanded(
                 child: TabBarView(
                   children: [
                     //for (final icon in _kPages.values) Icon(icon, size: 64),
-                    NearMasjidResponse(parentSetState: updateDropdown),
+                    NearMasjids(),
                     const FavoriteMasjid(),
-                    CurrentMasjidIquama(
-                        mainMasjid: mainMasjid, isLoading: isLoading),
+                    CurrentMasjidIquama(),
                     QuiblaDirection(),
                     CitySearchScreen(),
                   ],
@@ -137,6 +96,11 @@ class _HomePageState extends State<HomePage> {
           const <int, dynamic>{3: ''},
           style: TabStyle.reactCircle,
           items: <TabItem>[
+            //   TabItem(icon: Icons.location_on, title: AppLocalizations.of(context)!.proximity),
+            //   TabItem(icon: Icons.mosque,, title: AppLocalizations.of(context)!.favorite),
+            //   TabItem(icon: Icons.more_time, title:AppLocalizations.of(context)!.iqama ),
+            //   TabItem(icon: LineIcons.kaaba, title: AppLocalizations.of(context)!.quibla),
+            //   TabItem(icon: Icons.people, title: AppLocalizations.of(context)!.city),
             for (final entry in _kPages.entries)
               TabItem(icon: entry.value, title: entry.key),
           ],
@@ -144,35 +108,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-// Select style enum from dropdown menu:
-  Widget mainMasjidDropdown() {
-    Widget widget = isLoading
-        ? LoadingIndicator()
-        : mainMasjid != null
-            ? DropdownButton<HiveMasjid>(
-                value: mainMasjid == null
-                    ? null
-                    : myMasjids
-                        .firstWhere((element) => mainMasjid!.id == element.id),
-                onChanged: (newMainMasjid) {
-                  if (newMainMasjid != null) {
-                    mainMasjidsBox.put("mainMasjid", newMainMasjid);
-                    getMainMasjid(newMainMasjid);
-                    setState(() => {});
-                  }
-                },
-                items: [
-                  for (final masjid in myMasjids)
-                    DropdownMenuItem(
-                      value: masjid,
-                      child: Text(masjid.name),
-                    )
-                ],
-              )
-            : Container();
-    return widget;
   }
 
   Padding prayerTime() {

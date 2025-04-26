@@ -1,50 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:prayertime/common/constants.dart';
 import 'package:prayertime/common/globals.dart';
-import 'package:prayertime/user.dart';
+import 'package:prayertime/class/user.dart';
+import 'package:prayertime/common/masjid.dart';
+import 'package:prayertime/services/masjid_services.dart';
+
 class UserService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final _firestore = FirebaseFirestore.instance;
 
-  static  MyUser _getUserFromDocument(ds) {
-    MyUser user = MyUser();
-   // if (ds.data()!.containsKey('userType')) {
-
-      user = MyUser.fromDocument(ds);
-
-  //  }
-    return user;
-  }
-
-  static Future<List<MyUser>> getUsersWithPharmacyId(String pharmacyId) async {
-    List<MyUser> users = [];
-
-    await _firestore
-        .collection("users")
-        .get()
-        .then((ds) => users.add(_getUserFromDocument(ds)));
-    return users;
-  }
-
-  static Future<List<MyUser?>> getEmployeesWithPharmacyId(String pharmacyId) async {
-    List<MyUser?> users = [];
-
-    await _firestore
-        .collection("users")
-        .get()
-        .then((ds) => users.add(_getUserFromDocument(ds)));
-    return users;
-  }
-
   static Future<MyUser?> getUserWithId(String id) async {
     MyUser? user;
 
-    await _firestore.collection("users").doc(id).get().then((ds) {
+    await _firestore.collection(Collections.users).doc(id).get().then((ds) {
       if (ds.exists) {
         //String usertype
-        user = _getUserFromDocument(ds);
+        user = MyUser.fromDocument(ds, null);
       }
     });
+    if (user != null) {
+      var masjidService = MasjidService();
+      MyMasjid? masjid = await masjidService.getMasjidwithUserId(id);
+      user!.masjid = masjid;
+    }
     return user;
   }
 
@@ -52,15 +31,9 @@ class UserService {
     User? authUser = _auth.currentUser;
     bool res = false;
     if (authUser != null) {
-      await _firestore
-          .collection("users")
-          .doc(authUser.uid)
-          .get()
-          .then((ds) {
+      await _firestore.collection("users").doc(authUser.uid).get().then((ds) {
         if (ds.exists) {
-
-            res = true;
-
+          res = true;
         }
       });
     }
@@ -108,15 +81,4 @@ class UserService {
     initCurrentUser();
     return currentUser;
   }
-
-  static MyUser getUserFromDocument(QueryDocumentSnapshot<Object?> ds) {
-    MyUser user = MyUser();
-
-    user = MyUser.fromDocument(ds);
-
-
-
-    return user;
-  }
-
 }

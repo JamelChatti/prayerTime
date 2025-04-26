@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hive/hive.dart';
+import 'package:prayertime/common/HiveBoxesManager.dart';
 import 'package:prayertime/common/utils.dart';
 import 'package:prayertime/common/constants.dart';
 import 'package:prayertime/common/globals.dart';
@@ -8,6 +10,7 @@ import 'package:prayertime/common/user_service.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final UserService userService = UserService();
+  var userBox = HiveBoxesManager().userBox;
 
   void initListener() {
     FirebaseAuth.instance.authStateChanges().listen((User? user) async {
@@ -24,17 +27,15 @@ class AuthService {
   }
 
   Future<void> _completeLogin(User user) async {
-    UtilsMasjid.localStorage!.setString(StorageConst.email, user.email!);
-    //bool regisComplete = await UserService.registrationComplete();
-    //Utils.localStorage!.setBool(StorageConst.regisComplete, regisComplete);
+    userBox.put(HiveBoxConst.userEmailKey, user.email!);
 
-    //TODO check if local storage necessary
+    //bool regisComplete = await UserService.registrationComplete();
 
     await userService.initCurrentUser();
   }
 
   Future<void> _completeLogout() async {
-    UtilsMasjid.localStorage!.clear();
+    userBox.delete(HiveBoxConst.userEmailKey);
     userService.uninitializeCurrentUser();
   }
 

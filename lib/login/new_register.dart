@@ -19,8 +19,8 @@ import 'package:prayertime/common/user_service.dart';
 
 import 'package:prayertime/services/auth_service.dart';
 import 'package:prayertime/services/masjid_services.dart';
-import 'package:prayertime/setting_masjid/masjid_update.dart';
-import 'package:prayertime/user.dart';
+import 'package:prayertime/class/user.dart';
+import 'package:prayertime/views/my_drawer_views/setting_masjid/masjid_update.dart';
 
 class NewRegister extends StatefulWidget {
   const NewRegister({Key? key}) : super(key: key);
@@ -960,6 +960,7 @@ MyMasjid? _masjid;
       "timestamp": DateTime.now().millisecondsSinceEpoch,
       "userId": FirebaseAuth.instance.currentUser?.uid,
       "positionMasjid":  GeoPoint(_center.latitude,_center.longitude),
+      "isActive":true,
     });
 
   }
@@ -976,6 +977,7 @@ MyMasjid? _masjid;
         //TODO Validator for cin
         dropdownValue,
         '',
+        null
       );
       await userService.addUser(user);
   }

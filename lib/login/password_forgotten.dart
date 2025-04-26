@@ -2,7 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:prayertime/common/utils.dart';
-import 'package:prayertime/update_prayer_time.dart';
+
 class PasswordForgotten extends StatefulWidget {
   @override
   _PasswordForgottenState createState() => _PasswordForgottenState();
@@ -69,17 +69,17 @@ class _PasswordForgottenState extends State<PasswordForgotten> {
                       const SizedBox(
                         height: 20,
                       ),
-                      // ElevatedButton(
-                      //   child: const Text(
-                      //     'Envoyer',
-                      //     style: TextStyle(color: Colors.white),
-                      //   ),
-                      //   onPressed: () async {
-                      //     sendpasswordresetemail(_emailController.text.trimRight());
-                      //     Navigator.push(context,
-                      //         MaterialPageRoute(builder: (context) => const UpdatePrayerTime()));
-                      //   },
-                      // ),
+                      ElevatedButton(
+                        child: const Text(
+                          'Envoyer',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          sendpasswordresetemail(_emailController.text.trimRight());
+                          // Navigator.push(context,
+                          //     MaterialPageRoute(builder: (context) => const UpdatePrayerTime()));
+                        },
+                      ),
                     ],
                   )),
             )),
